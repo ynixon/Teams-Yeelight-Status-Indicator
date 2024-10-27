@@ -49,23 +49,23 @@ Run the script with the following options:
 
 1. **Basic Usage**:
    ```bash
-   python teams_yeelight_status.py
+   python teams_bulb_sync.py
    ```
 
 2. **Using Command-Line Arguments**:
    ```bash
-   python teams_yeelight_status.py <path_to_chromedriver> <bulb_ip>
+   python teams_bulb_sync.py <path_to_chromedriver> <bulb_ip>
    ```
    Example:
    ```bash
-   python teams_yeelight_status.py C:\path\to\chromedriver.exe 192.168.1.100
+   python teams_bulb_sync.py C:\path\to\chromedriver.exe 192.168.1.100
    ```
 
 3. **Using Environment Variables**:
    ```bash
    set CHROMEDRIVER_PATH=<path_to_chromedriver>
    set BULB_IP=<bulb_ip>
-   python teams_yeelight_status.py
+   python teams_bulb_sync.py
    ```
 
 The script will open Microsoft Teams in a browser window, detect your current status, and update the Yeelight bulb color accordingly. It checks the status every 15 seconds and adjusts the color as needed.
@@ -77,7 +77,7 @@ The script will open Microsoft Teams in a browser window, detect your current st
 
 ## Customization
 
-You can customize the bulb colors for each Teams status by modifying the `update_bulb_color` function in `teams_yeelight_status.py`.
+You can customize the bulb colors for each Teams status by modifying the `update_bulb_color` function in `teams_bulb_sync.py`.
 
 ## Contributing
 
