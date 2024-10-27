@@ -29,7 +29,7 @@ def get_chromedriver_path():
         print(
             "ChromeDriver not found at specified path.\n"
             "Usage:\n"
-            "  python teams_yeelight_status.py <path_to_chromedriver> <bulb_ip>\n"
+            "  python teams_bulb_sync.py <path_to_chromedriver> <bulb_ip>\n"
             "or set the environment variable CHROMEDRIVER_PATH and BULB_IP.\n"
         )
         sys.exit(1)
