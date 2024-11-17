@@ -1,88 +1,128 @@
 # Teams-Yeelight-Status-Indicator
 
-**Teams-Yeelight-Status-Indicator** is a Python script that synchronizes your Microsoft Teams status with a Yeelight smart bulb. The bulb color reflects your Teams status, providing a quick visual indicator of your availability.
+**Teams-Yeelight-Status-Indicator** is a Python script that synchronizes your Microsoft Teams status with a Yeelight smart bulb. The bulb color changes dynamically based on your Teams availability, offering a quick and visual way to indicate your status.
+
+---
 
 ## Features
 
-- Changes the Yeelight bulb color based on your Teams status:
+- **Visual Status Indication**:
   - **Green** for Available
   - **Red** for Busy
   - **Yellow** for Away
   - **Gray** for Unknown
-- Automatically attempts to reconnect to the bulb if a connection is lost.
-- Uses Selenium to fetch Teams status from the Teams web app.
+- **Automatic Bulb Reconnection**: Reconnects to the Yeelight bulb if the connection is lost.
+- **Selenium Integration**: Fetches Teams status via the Microsoft Teams web app.
+
+---
 
 ## Requirements
 
 - **Python 3.8+**
-- **Yeelight smart bulb**
+- **Yeelight smart bulb** (connected to the same network as your PC)
 - **Selenium** and **ChromeDriver**
 - **Microsoft Teams account**
 
+---
+
 ## Installation
 
-1. **Clone the repository:**
+1. **Clone the repository**:
    ```bash
    git clone https://github.com/ynixon/Teams-Yeelight-Status-Indicator.git
    cd Teams-Yeelight-Status-Indicator
    ```
 
-2. **Install dependencies:**
+2. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Download ChromeDriver:**
-   - Ensure your ChromeDriver version matches your installed Chrome browser version.
-   - Place `chromedriver.exe` in the project directory or specify its location using either:
-     - A command-line argument
-     - The environment variable `CHROMEDRIVER_PATH`
+3. **Download ChromeDriver**:
+   - Ensure that your ChromeDriver version matches your installed Chrome browser version.
+   - Place the `chromedriver.exe` in the project directory or specify its location in the `config.yaml` file.
 
-4. **Set the Bulb IP Address:**
-   - Specify the Yeelight bulb’s IP address using either:
-     - A command-line argument
-     - The environment variable `BULB_IP`
+4. **Configure the Script**:
+   - Edit the `config.yaml` file to include:
+     - The path to `chromedriver.exe`.
+     - Your Microsoft Teams email address.
+     - The Yeelight bulb’s IP address.
+   Example:
+   ```yaml
+   settings:
+     chromedriver_path: "c:/tools/chromedriver.exe"
+     email: "your_email@domain.com"
+     bulb_ip: "192.168.1.100"
+
+   status_mappings:
+     available: "Available"
+     busy: "Busy"
+     away: "Away"
+     do not disturb: "Busy"
+     be right back: "Away"
+     offline: "Unknown"
+     in a call: "Busy"
+     in a meeting: "Available"
+     presenting: "Busy"
+   ```
+
+---
 
 ## Usage
 
-Run the script with the following options:
-
 1. **Basic Usage**:
+   Run the script with the default configuration:
    ```bash
    python teams_bulb_sync.py
    ```
 
-2. **Using Command-Line Arguments**:
+2. **Specifying a Custom Configuration File**:
+   Provide a custom configuration file using the `--config` argument:
    ```bash
-   python teams_bulb_sync.py <path_to_chromedriver> <bulb_ip>
-   ```
-   Example:
-   ```bash
-   python teams_bulb_sync.py C:\path\to\chromedriver.exe 192.168.1.100
+   python teams_bulb_sync.py --config custom_config.yaml
    ```
 
-3. **Using Environment Variables**:
-   ```bash
-   set CHROMEDRIVER_PATH=<path_to_chromedriver>
-   set BULB_IP=<bulb_ip>
-   python teams_bulb_sync.py
-   ```
+The script will:
+- Launch Microsoft Teams in a visible Chrome browser.
+- Fetch your current status.
+- Update the Yeelight bulb color accordingly.
+- Check your Teams status every 15 seconds.
 
-The script will open Microsoft Teams in a browser window, detect your current status, and update the Yeelight bulb color accordingly. It checks the status every 15 seconds and adjusts the color as needed.
+---
 
 ## Troubleshooting
 
-- **"Failed to update Yeelight bulb color: Bulb closed the connection"**: This error usually occurs if the bulb is powered off. Ensure that the bulb is on and connected to the same network as your computer.
-- **"Error retrieving status"**: If Selenium can’t locate the Teams status, ensure that Teams is fully loaded, or try increasing the wait time in the script.
+- **Bulb Connection Issues**:
+  - Ensure the bulb is powered on and connected to the same network as your PC.
+  - Verify the correct bulb IP address in the `config.yaml` file.
+  - Restart the bulb if it fails to respond.
+
+- **ChromeDriver Errors**:
+  - Make sure ChromeDriver is installed and its version matches your Chrome browser.
+  - Update the `chromedriver_path` in `config.yaml` if necessary.
+
+- **Teams Status Not Detected**:
+  - Confirm that Teams is fully loaded before running the script.
+  - Increase Selenium's wait time for status detection in the script if necessary.
+
+---
 
 ## Customization
 
-You can customize the bulb colors for each Teams status by modifying the `update_bulb_color` function in `teams_bulb_sync.py`.
+- **Change Status Colors**:
+  Modify the `status_mappings` section in `config.yaml` to adjust the bulb color for specific statuses.
+
+- **Adjust Polling Interval**:
+  Change the frequency of status checks by editing the `time.sleep(15)` line in the script.
+
+---
 
 ## Contributing
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you’d like to change.
+Pull requests and issues are welcome! For major changes, open an issue first to discuss your ideas.
+
+---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

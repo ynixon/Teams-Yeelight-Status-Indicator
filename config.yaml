@@ -1,0 +1,14 @@
+settings:
+  email: "your_email@domain.com"
+  bulb_ip: "192.168.1.100"
+  chromedriver_path: "c:/tools/chromedriver.exe"
+status_mappings:
+  available: Available
+  busy: Busy
+  away: Available
+  do not disturb: Available
+  be right back: Available
+  offline: Available
+  in a call: Busy
+  in a meeting: Available
+  presenting: Busy
