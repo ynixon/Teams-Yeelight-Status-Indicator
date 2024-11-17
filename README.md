@@ -7,10 +7,8 @@
 ## Features
 
 - **Visual Status Indication**:
-  - **Green** for Available
-  - **Red** for Busy
-  - **Yellow** for Away
-  - **Gray** for Unknown
+  - Dynamic RGB color mapping based on Teams status.
+  - Colors are configurable via `config.yaml`.
 - **Automatic Bulb Reconnection**: Reconnects to the Yeelight bulb if the connection is lost.
 - **Selenium Integration**: Fetches Teams status via the Microsoft Teams web app.
 
@@ -20,7 +18,7 @@
 
 - **Python 3.8+**
 - **Yeelight smart bulb** (connected to the same network as your PC)
-- **Selenium** and **ChromeDriver**
+- **Selenium** and **webdriver-manager**
 - **Microsoft Teams account**
 
 ---
@@ -38,32 +36,44 @@
    pip install -r requirements.txt
    ```
 
-3. **Download ChromeDriver**:
-   - Ensure that your ChromeDriver version matches your installed Chrome browser version.
-   - Place the `chromedriver.exe` in the project directory or specify its location in the `config.yaml` file.
-
-4. **Configure the Script**:
+3. **Configure the Script**:
    - Edit the `config.yaml` file to include:
-     - The path to `chromedriver.exe`.
      - Your Microsoft Teams email address.
      - The Yeelight bulb’s IP address.
    Example:
    ```yaml
    settings:
-     chromedriver_path: "c:/tools/chromedriver.exe"
      email: "your_email@domain.com"
      bulb_ip: "192.168.1.100"
 
    status_mappings:
-     available: "Available"
-     busy: "Busy"
-     away: "Away"
-     do not disturb: "Busy"
-     be right back: "Away"
-     offline: "Unknown"
-     in a call: "Busy"
-     in a meeting: "Available"
-     presenting: "Busy"
+     available:
+       status: Available
+       color: "0,255,0"  # Green
+     busy:
+       status: Busy
+       color: "255,0,0"  # Red
+     away:
+       status: Away
+       color: "255,255,0"  # Yellow
+     do not disturb:
+       status: Busy
+       color: "255,0,0"  # Red
+     be right back:
+       status: Away
+       color: "255,255,0"  # Yellow
+     offline:
+       status: Unknown
+       color: "128,128,128"  # Gray
+     in a call:
+       status: Busy
+       color: "255,0,0"  # Red
+     in a meeting:
+       status: Available
+       color: "0,255,0"  # Green
+     presenting:
+       status: Busy
+       color: "255,0,0"  # Red
    ```
 
 ---
@@ -98,8 +108,8 @@ The script will:
   - Restart the bulb if it fails to respond.
 
 - **ChromeDriver Errors**:
-  - Make sure ChromeDriver is installed and its version matches your Chrome browser.
-  - Update the `chromedriver_path` in `config.yaml` if necessary.
+  - `webdriver-manager` is used, so manual installation of ChromeDriver is not required.
+  - Ensure your Chrome browser is up to date.
 
 - **Teams Status Not Detected**:
   - Confirm that Teams is fully loaded before running the script.

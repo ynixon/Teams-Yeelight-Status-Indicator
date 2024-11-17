@@ -8,11 +8,12 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import NoSuchWindowException
+from selenium.common.exceptions import NoSuchWindowException, WebDriverException
 from yeelight import Bulb
+from webdriver_manager.chrome import ChromeDriverManager
 
 # Disable TensorFlow Lite warnings
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 # Function to load the configuration from the YAML file
@@ -28,27 +29,22 @@ def load_config(file_path):
 
 # Function to validate paths and settings
 def validate_settings(settings):
-    chromedriver_path = settings.get("chromedriver_path", "c:/tools/chromedriver.exe")
     email = settings.get("email", "")
     bulb_ip = settings.get("bulb_ip", "")
 
     # Debugging outputs
     print(f"Loaded settings:")
-    print(f"  ChromeDriver Path: {chromedriver_path}")
     print(f"  Email: {email}")
     print(f"  Bulb IP: {bulb_ip}")
 
-    # Validate paths and required settings
-    if not os.path.exists(chromedriver_path):
-        print(f"Error: ChromeDriver not found at {chromedriver_path}.")
-        sys.exit(1)
+    # Validate required settings
     if not email:
         print("Error: Email address is missing in the configuration.")
         sys.exit(1)
     if not bulb_ip:
         print("Error: Bulb IP is missing in the configuration.")
         sys.exit(1)
-    return chromedriver_path, email, bulb_ip
+    return email, bulb_ip
 
 
 # Function to initialize the Yeelight bulb
@@ -106,36 +102,38 @@ def login_to_teams(driver, email):
 # Function to get Teams status
 def get_teams_status(driver, status_mappings):
     try:
-        print("Attempting to locate the status element...")
         status_button = WebDriverWait(driver, 60).until(
             EC.presence_of_element_located(
                 (By.XPATH, "//*[contains(@aria-label, 'status') and @role='button']")
             )
         )
         aria_label = status_button.get_attribute("aria-label").lower()
-        print(f"Aria-label found: {aria_label}")
+        print(f"{aria_label}")
 
-        for key, mapped_status in status_mappings.items():
+        for key, mapping in status_mappings.items():
             if key in aria_label:
-                return mapped_status
-        return "Unknown"
+                return mapping  # Return the entire mapping dictionary
+        return {"status": "Unknown", "color": "128,128,128"}  # Default mapping
     except Exception as e:
         print(f"Error retrieving status: {e}")
-        return "Unknown"
+        return {"status": "Unknown", "color": "128,128,128"}
 
 
 # Function to update the Yeelight bulb color based on Teams status
-def update_bulb_color(bulb, status, bulb_ip):
+def update_bulb_color(bulb, status_mapping, bulb_ip):
     try:
-        if status == "Busy":
-            bulb.set_rgb(255, 0, 0)  # Red for busy
-        elif status == "Available":
-            bulb.set_rgb(0, 255, 0)  # Green for available
-        elif status == "Away":
-            bulb.set_rgb(255, 255, 0)  # Yellow for away
-        else:
-            bulb.set_rgb(128, 128, 128)  # Gray for unknown status
-        print(f"Updated bulb color for status: {status}")
+        status = status_mapping.get("status", "Unknown")
+        rgb_color = status_mapping.get("color", "128,128,128")  # Default to Gray
+        r, g, b = map(int, rgb_color.split(","))  # Convert RGB string to integers
+
+        # Update bulb color
+        bulb.set_rgb(r, g, b)
+
+        # Map RGB to ANSI escape sequence for console color
+        console_color = f"\033[38;2;{r};{g};{b}m"
+
+        # Print status in the corresponding color
+        print(f"{console_color}Updated bulb color for status: {status}\033[0m")
     except Exception as e:
         print(f"Failed to update Yeelight bulb color: {e}")
         reconnect_bulb(bulb, bulb_ip)
@@ -164,17 +162,21 @@ def main():
         print(f"  {status}: {mapping}")
 
     # Validate settings and extract necessary parameters
-    chromedriver_path, email, bulb_ip = validate_settings(settings)
+    email, bulb_ip = validate_settings(settings)
 
     # Initialize the Yeelight bulb
     print(f"Attempting to connect to the Yeelight bulb at IP: {bulb_ip}")
     bulb = initialize_bulb(bulb_ip)
 
-    # Set up ChromeDriver service
+    # Set up ChromeDriver using webdriver-manager
     options = webdriver.ChromeOptions()
     options.add_argument("--disable-gpu")
-    service = Service(chromedriver_path)
-    driver = webdriver.Chrome(service=service, options=options)
+    options.add_argument("--ignore-certificate-errors")
+    options.add_argument("--allow-insecure-localhost")
+    options.add_argument("--log-level=3")
+    options.add_argument('--ignore-ssl-errors')
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+
 
     # Open Microsoft Teams Web
     driver.get("https://teams.microsoft.com/")
@@ -190,7 +192,7 @@ def main():
     # Synchronize Teams status with the Yeelight bulb
     try:
         while True:
-            status = get_teams_status(driver, status_mappings)
+            status = get_teams_status(driver, status_mappings)  # Only retrieve status
             print("Teams Status:", status)
             update_bulb_color(bulb, status, bulb_ip)
             time.sleep(15)  # Check every 15 seconds
@@ -198,7 +200,6 @@ def main():
         print("Exiting...")
     finally:
         driver.quit()
-
 
 if __name__ == "__main__":
     main()
