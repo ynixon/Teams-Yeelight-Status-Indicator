@@ -1,7 +1,11 @@
 settings:
   email: "your_email@domain.com"
+  password: "your password"
   bulb_ip: "192.168.1.100"
   chromedriver_path: "c:/tools/chromedriver.exe"
+  GREEN_API_INSTANCE: "Green API instance number"
+  GREEN_API_TOKEN: "Green API Token"
+  WHATSAPP_NUMBER: "Whatsapp number"
 status_mappings:
   available:
     status: Available

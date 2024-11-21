@@ -11,6 +11,7 @@
   - Colors are configurable via `config.yaml`.
 - **Automatic Bulb Reconnection**: Reconnects to the Yeelight bulb if the connection is lost.
 - **Selenium Integration**: Fetches Teams status via the Microsoft Teams web app.
+- **MFA Support**: Extract MFA numbers from Teams login and send them via WhatsApp.
 
 ---
 
@@ -20,6 +21,7 @@
 - **Yeelight smart bulb** (connected to the same network as your PC)
 - **Selenium** and **webdriver-manager**
 - **Microsoft Teams account**
+- **Green API credentials** for sending WhatsApp messages
 
 ---
 
@@ -38,13 +40,19 @@
 
 3. **Configure the Script**:
    - Edit the `config.yaml` file to include:
-     - Your Microsoft Teams email address.
+     - Your Microsoft Teams email address and password.
      - The Yeelight bulb’s IP address.
+     - Green API credentials for WhatsApp integration.
+
    Example:
    ```yaml
    settings:
      email: "your_email@domain.com"
+     password: "your_password"
      bulb_ip: "192.168.1.100"
+     GREEN_API_INSTANCE: "your_green_api_instance_id"
+     GREEN_API_TOKEN: "your_green_api_token"
+     WHATSAPP_NUMBER: "whatsapp_number@c.us"  # For groups, use @g.us
 
    status_mappings:
      available:
@@ -93,7 +101,7 @@
    ```
 
 The script will:
-- Launch Microsoft Teams in a visible Chrome browser.
+- Launch Microsoft Teams in a headless Chrome browser.
 - Fetch your current status.
 - Update the Yeelight bulb color accordingly.
 - Check your Teams status every 15 seconds.
@@ -106,6 +114,10 @@ The script will:
   - Ensure the bulb is powered on and connected to the same network as your PC.
   - Verify the correct bulb IP address in the `config.yaml` file.
   - Restart the bulb if it fails to respond.
+
+- **WhatsApp Alerts Not Sent**:
+  - Verify Green API credentials and WhatsApp number format in the `config.yaml`.
+  - Ensure your Green API token is valid.
 
 - **ChromeDriver Errors**:
   - `webdriver-manager` is used, so manual installation of ChromeDriver is not required.
