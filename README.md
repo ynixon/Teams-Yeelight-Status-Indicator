@@ -54,34 +54,38 @@
      GREEN_API_TOKEN: "your_green_api_token"
      WHATSAPP_NUMBER: "whatsapp_number@c.us"  # For groups, use @g.us
 
-   status_mappings:
-     available:
-       status: Available
-       color: "0,255,0"  # Green
-     busy:
-       status: Busy
-       color: "255,0,0"  # Red
-     away:
-       status: Away
-       color: "255,255,0"  # Yellow
-     do not disturb:
-       status: Busy
-       color: "255,0,0"  # Red
-     be right back:
-       status: Away
-       color: "255,255,0"  # Yellow
-     offline:
-       status: Unknown
-       color: "128,128,128"  # Gray
-     in a call:
-       status: Busy
-       color: "255,0,0"  # Red
-     in a meeting:
-       status: Available
-       color: "0,255,0"  # Green
-     presenting:
-       status: Busy
-       color: "255,0,0"  # Red
+    status_mappings:
+      available:
+        status: Available
+        color: "0,255,0"  # Green
+      busy:
+        status: Available
+        color: "0,255,0"  # Green
+      away:
+        status: Available
+        color: "0,255,0"  # Green
+      focusing:
+        status: Available
+        color: "0,255,0"  # Green
+      do not disturb:
+        status: Available
+        color: "0,255,0"  # Green
+      be right back:
+        status: Available
+        color: "0,255,0"  # Green
+      offline:
+        status: Available
+        color: "0,255,0"  # Green
+      in a call:
+        status: Busy
+        color: "255,0,0"  # Red
+      in a meeting:
+        status: Available
+        color: "0,255,0"  # Green
+      presenting:
+        status: Busy
+        color: "255,0,0"  # Red
+
    ```
 
 ---

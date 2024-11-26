@@ -26,7 +26,7 @@ def extract_mfa_number(driver, retries=3):
                 EC.presence_of_element_located((By.ID, "idRichContext_DisplaySign"))
             )
             mfa_number = mfa_element.text.strip()
-            print(f"Extracted MFA number: {mfa_number}")
+            print(f"Extracted MFA number: \033[97m{mfa_number}\033[0m")
             return mfa_number
         except Exception as e:
             print(f"Attempt {attempt + 1} failed: {e}")
@@ -195,22 +195,31 @@ def login_to_teams(driver, email, password):
 
 # Function to get Teams status
 def get_teams_status(driver, status_mappings):
+    """Retrieve Teams status and map it to a predefined status."""
     try:
+        # Find the status button by its aria-label
         status_button = WebDriverWait(driver, 60).until(
             EC.presence_of_element_located(
                 (By.XPATH, "//*[contains(@aria-label, 'status') and @role='button']")
             )
         )
         aria_label = status_button.get_attribute("aria-label").lower()
-        print(f"{aria_label}")
 
+        # Extract the status from the aria-label
+        status_key = aria_label.replace("your profile, status ", "").strip()
+
+        print(f"Profile status: \033[97m{status_key}\033[0m")  # Debugging information
+
+        # Match extracted status to predefined mappings
         for key, mapping in status_mappings.items():
-            if key in aria_label:
-                return mapping  # Return the entire mapping dictionary
-        return {"status": "Unknown", "color": "128,128,128"}  # Default mapping
+            if key in status_key:
+                return mapping  # Return the matching status mapping
+
+        # Default mapping for unknown statuses
+        return {"status": "Unknown", "color": "255,255,255"}  # Bright white
     except Exception as e:
         print(f"Error retrieving status: {e}")
-        return {"status": "Unknown", "color": "128,128,128"}
+        return {"status": "Unknown", "color": "255,255,255"}  # Bright white fallback
 
 
 # Function to update the Yeelight bulb color based on Teams status
@@ -227,7 +236,7 @@ def update_bulb_color(bulb, status_mapping, bulb_ip):
         console_color = f"\033[38;2;{r};{g};{b}m"
 
         # Print status in the corresponding color
-        print(f"{console_color}Updated bulb color for status: {status}\033[0m")
+        print(f"Updated bulb color for status: {console_color}{status}\033[0m")
     except Exception as e:
         print(f"Failed to update Yeelight bulb color: {e}")
         reconnect_bulb(bulb, bulb_ip)
@@ -266,6 +275,7 @@ def main():
         # Set up ChromeDriver using webdriver-manager
         options = webdriver.ChromeOptions()
         options.add_argument("--disable-gpu")
+        # options.add_argument("--enable-gpu")  # Enable GPU
         options.add_argument("--ignore-certificate-errors")
         options.add_argument("--allow-insecure-localhost")
         options.add_argument("--log-level=3")
@@ -275,6 +285,10 @@ def main():
         options.add_argument("--no-sandbox")  # Required for running in headless environments
         options.add_argument("--disable-dev-shm-usage")  # Avoid shared memory issues
         options.add_argument("--window-size=1920,1080")  # Optional: Specify window size for screenshots
+        # options.add_argument("--enable-unsafe-webgl")  # Enable WebGL
+        # OR disable WebGL completely
+        options.add_argument("--disable-webgl")
+
 
         driver = webdriver.Chrome(
             service=Service(ChromeDriverManager().install()), options=options
@@ -302,7 +316,7 @@ def main():
         try:
             while True:
                 status = get_teams_status(driver, status_mappings)  # Only retrieve status
-                print("Teams Status:", status)
+                # print("Teams Status:", status)
                 update_bulb_color(bulb, status, bulb_ip)
                 time.sleep(15)  # Check every 15 seconds
         except KeyboardInterrupt:
@@ -315,6 +329,14 @@ def main():
         print(f"Unexpected error: {e}")
     finally:
         try:
+            # Reset bulb color to bright white
+            print(f"Resetting bulb to bright \033[97mwhite\033[0m...")
+            bulb.set_rgb(255, 255, 255)  # Bright white
+            print("Bulb color reset to bright \033[97mwhite\033[0m.")
+        except Exception as e:
+            print(f"Error resetting bulb color: {e}")
+        try:
+            # Close the WebDriver
             driver.quit()
         except Exception as e:
             print(f"Error closing the WebDriver: {e}")
