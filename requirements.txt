@@ -2,3 +2,5 @@ selenium
 yeelight
 msal
 webdriver-manager-4.0.2
+chromedriver-binary
+colorama
